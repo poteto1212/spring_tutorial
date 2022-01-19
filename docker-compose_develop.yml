@@ -1,0 +1,31 @@
+version: '3.6'
+services:
+  java:
+    image: openjdk:17
+    ports:
+      - 8080:8080
+    tty: true
+    volumes:
+      - ./demo:/srv:cached
+    working_dir: /srv
+    env_file:
+      - .env
+  
+  db:
+        image: postgres:latest
+        container_name: test_db # "Spring Boot 用のDB" という意味の任意の名前
+        restart: always
+        ports:
+            - 5432:5432 # 今回はコンテナ同士でつなぐだけなのでコメントアウト
+        environment:
+            POSTGRES_USER: 'poteto1212' # DBのユーザー名（＝DB名）
+            POSTGRES_PASSWORD: 'Makt0112' # DBのパスワード
+        volumes:
+            - ./init_db:/docker-entrypoint-initdb.d
+  server:
+    container_name: server
+    build: ./develop_server/docker
+    ports:
+      - 1359:443
+    volumes:
+      - ./develop_server/docker/nginx/ssl.conf:/etc/nginx/conf.d/ssl.conf
